@@ -40,15 +40,13 @@
         </tr>
       </tbody>
     </table>
-    <div style="display: flex">
+    <div>
         <pagination v-model="page" :records="10"
-        :per-page="perPage"
+        :per-page="perPage" style="width=100; margin-right: auto"
         @paginate="myCallback"/>
         </div>
   </div>
 </template>
-
-
 
 <script>
 import axios from 'axios'
@@ -81,13 +79,17 @@ export default {
                 this.loading = false
             }
         },
-        myCallback() {
-            console.log(this.page * this.pageSize);
-            let test;
-            return test;
-        }
+        
     },
     computed: {
+        myCallback() {
+            let pageNumber = this.page - 1;
+            let paginatedBook = this.books.slice(
+                pageNumber * this.perPage,
+                (pageNumber + 1) * this.perPage
+            )
+            return paginatedBook;
+        },
         filteredBooks() {
             const query = this.searchQuery.toLowerCase();
             if (this.searchQuery === "") {
@@ -107,43 +109,43 @@ export default {
 
 <style>
 .home {
-  max-width: 750px;
-  width: 100%;
-  margin: 0 auto;
+    max-width: 750px;
+    width: 100%;
+    margin: 0 auto;
 }
 .home h1 {
-  font-size: 30px;
-  text-align: center;
-  font-family: cursive;
+    font-size: 30px;
+    text-align: center;
+    font-family: cursive;
 }
 .home div {
-  text-align: right;
-  margin-bottom: 3px;
+    text-align: right;
+    margin-bottom: 3px;
 }
 input[type="text"] {
-  padding: 6px 8px;
-  margin-left: auto;
-  border: 1px solid #222;
-  border-radius: 4px;
+    padding: 6px 8px;
+    margin-left: auto;
+    border: 1px solid #222;
+    border-radius: 4px;
 }
 table {
-  font-family: Helvetica, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
+    font-family: Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
 }
 th {
-  width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 10px;
+    border: 1px solid #dddddd !important;
+    text-align: left;
+    padding: 10px;
 }
 
 tr:nth-child(even) {
-  background-color: #dddddd;
+    background-color: #dddddd;
 }
 </style>
