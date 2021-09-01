@@ -40,11 +40,11 @@
         </tr>
       </tbody>
     </table>
-    <v-pagination
-        v-model="page"
-        :length="2"
-        circle
-    ></v-pagination>
+    <div style="display: flex">
+        <pagination v-model="page" :records="10"
+        :per-page="perPage"
+        @paginate="myCallback"/>
+        </div>
   </div>
 </template>
 
@@ -52,10 +52,11 @@
 
 <script>
 import axios from 'axios'
+import Pagination from 'vue-pagination-2';
 
 export default {
     components: {
-        // HelloWorld,
+        Pagination
     },
 
     data: () => ({
@@ -63,8 +64,7 @@ export default {
         searchQuery: "",
         loading: false,
         page: 1,
-        pageSize: 4,
-        totalPages: 0,
+        perPage: 4,
     }),
     mounted () {
         this.fetchBooks()
@@ -72,30 +72,33 @@ export default {
     methods: {
         async fetchBooks () {
         this.loading = true
-        try {
-            const result = await axios.get(`https://www.anapioficeandfire.com/api/books?page=${this.page}&pageSize=${this.pageSize}`)
-            this.books = result.data
-            this.page = result.page
-            this.books = result.data
-            console.log(result);
-            this.loading = false
-        } catch (error) {
-            alert(error.message)
-            this.loading = false
-        }
+            try {
+                const result = await axios.get(`https://www.anapioficeandfire.com/api/books?page=${this.page}&pageSize=${this.perPage}`)
+                this.books = result.data
+                this.loading = false
+            } catch (error) {
+                alert(error.message)
+                this.loading = false
+            }
+        },
+        myCallback() {
+            console.log(this.page * this.pageSize);
+            let test;
+            return test;
         }
     },
     computed: {
         filteredBooks() {
-        const query = this.searchQuery.toLowerCase();
-        if (this.searchQuery === "") {
-            return this.books
-        }
+            const query = this.searchQuery.toLowerCase();
+            if (this.searchQuery === "") {
+                return this.books
+            }
 
-        return this.books.filter(book => {
-            return Object.values(book).some(name => String(name).toLowerCase().includes(query))
-        })
-        }
+            return this.books.filter(book => {
+                return Object.values(book).some(name => String(name).toLowerCase().includes(query))
+            })
+        },
+
     }
 }
 </script>
