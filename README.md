@@ -1,24 +1,11 @@
 # datamax-book
 
+## Project description
+
+This is a project for DataMax Registrar. Axios and moment.js packages were used in the project. Pagination was implemented.
+
 ## Project setup
-```
-yarn install
-```
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Fork the repository and clone it. Then run the command below;
+    - npm install (to install node modules)
+    - npm run serve
