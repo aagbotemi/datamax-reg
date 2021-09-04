@@ -3,50 +3,53 @@
         <h1>DataMax Registrar Project</h1>
         
 
-        <div style="overflow-x:auto; margin:0 2rem;">
+        <div style="margin:0 2rem;">
             <div>
                 <label for="search">Search: </label>
                 <input type="text" name="search" v-model="searchQuery">
             </div>
-        <table>
-            <thead>
-                <tr>
-                    <th class="text-left">S/N</th>
-                    <th class="text-left">Name</th>
-                    <th class="text-left">ISBN</th>
-                    <th class="text-left">Authors</th>
-                    <th class="text-left">Pages</th>
-                    <th class="text-left">Country</th>
-                    <th class="text-left">Released</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="loading">
-                    <td colspan="7" style="text-align: center">
-                        <loading />
-                    </td>
-                </tr>
-                <tr
-                v-for="(book, index) in filteredBooks"
-                :key="book.name"
-                v-else
-                >
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ book.name }}</td>
-                    <td>{{ book.isbn }}</td>
-                    <td>{{ book.authors.join(", ") }}</td>
-                    <td>{{ book.numberOfPages }}</td>
-                    <td>{{ book.country }}</td>
-                    <td>{{ book.released | formatDate }}</td>
-                </tr>
-            </tbody>
-        </table>
 
-        <div> 
-            <pagination v-model="page" :records="10"
-            :per-page="perPage" style="width=100; margin-right: auto"
-            @paginate="myCallback"/>
-        </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-left">S/N</th>
+                            <th class="text-left">Name</th>
+                            <th class="text-left">ISBN</th>
+                            <th class="text-left">Authors</th>
+                            <th class="text-left">Pages</th>
+                            <th class="text-left">Country</th>
+                            <th class="text-left">Released</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="loading">
+                            <td colspan="7" style="text-align: center">
+                                <loading />
+                            </td>
+                        </tr>
+                        <tr
+                        v-for="(book, index) in filteredBooks"
+                        :key="book.name"
+                        v-else
+                        >
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ book.name }}</td>
+                            <td>{{ book.isbn }}</td>
+                            <td>{{ book.authors.join(", ") }}</td>
+                            <td>{{ book.numberOfPages }}</td>
+                            <td>{{ book.country }}</td>
+                            <td>{{ book.released | formatDate }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <span> 
+                <pagination v-model="page" :records="10"
+                :per-page="perPage"
+                @paginate="myCallback"/>
+            </span>
 
         </div>
         
@@ -86,36 +89,6 @@ export default {
                 this.loading = false
             }
         },
-
-        renderList(pageNumber=1){
-            //clear currently displayed list
-            this.countriesToDisplay = [];
-
-            //set countries to display
-            if(this.allCountries.length){
-                let _this = this;
-
-                return new Promise(function(res){
-                    //set the page to open to the pageNumber in the parameter in order to allow start and stop to update accordingly
-                    _this.pageToOpen = pageNumber;
-
-                    //add the necessary data to `countriesToDisplay` array
-                    for(let i = _this.start; i <= _this.stop; i++){
-                        _this.booksToDisplay.push(_this.allCountries[i]);
-                    }
-
-                    res();
-                }).then(function(){
-                    //Now update the current page to the page we just loaded
-                    _this.currentPage = _this.pageToOpen;
-                }).catch(function(){
-                    console.log('render err');
-                });                  
-            }
-        }
-
-        
-        
     },
     computed: {
         myCallback() {
@@ -139,43 +112,6 @@ export default {
                 return Object.values(book).some(name => String(name).toLowerCase().includes(query))
             })
         },
-
-
-        totalPages(){
-            //calculate the total number of pages based on the number of items to show per page and the total items we got from server
-            return this.allCountries.length && (this.allCountries.length > this.perPage) ? Math.ceil(this.allCountries.length/this.perPage) : 1;
-        },
-
-        start(){
-            return (this.pageToOpen - 1) * this.perPage;
-        },
-
-        stop(){
-            //stop at the end of the array if array length OR the items left are less than the number of items to show per page
-            //do the calculation if otherwise
-            if((this.allCountries.length - this.start) >= this.perPage){
-                return (this.pageToOpen * this.perPage) - 1;
-            }
-
-            else{
-                return this.allCountries.length - 1;
-            }
-        },
-			
-        showNext(){
-            return this.currentPage < this.totalPages;
-        },
-
-        showPrev(){
-            return this.currentPage > 1;
-        }
-
-    },
-    watch: {
-        //re-render list based on the value of `perPage` which indicates how many to show per page
-        perPage: function(){
-            this.renderList();
-        }
     }
 }
 </script>
