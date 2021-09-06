@@ -1,8 +1,6 @@
 <template>
     <div class="home">
         <h1>DataMax Registrar Project</h1>
-        
-
         <div style="margin:0 2rem;">
             <div>
                 <label for="search">Search: </label>
@@ -28,11 +26,7 @@
                                 <loading />
                             </td>
                         </tr>
-                        <tr
-                        v-for="(book, index) in filteredBooks"
-                        :key="book.name"
-                        v-else
-                        >
+                        <tr v-for="(book, index) in filteredBooks" :key="book.name" v-else>
                             <td>{{ index + 1 }}</td>
                             <td>{{ book.name }}</td>
                             <td>{{ book.isbn }}</td>
@@ -44,33 +38,34 @@
                     </tbody>
                 </table>
             </div>
-
-            <span> 
-                <pagination v-model="page" :records="10"
-                :per-page="perPage"
-                @paginate="myCallback"/>
-            </span>
-
-        </div>
-        
+            <section class="section dark no-padding-top">
+                <div class="container d-flex justify-content-between">
+                    <b-pagination 
+                        :total="all"
+                        :per-page="perPage"
+                        :page.sync="page"
+                        :paginated="isPaginated"
+                        v-model="page"
+                    />
+                </div>
+            </section>
+        </div>        
     </div>
 </template>
 
 <script>
 import axios from 'axios'
-import Loading from '../components/Loading.vue'
-import Pagination from 'vue-pagination-2';
+import Loading from '../components/Loading.vue';
 
 export default {
     components: {
-        Pagination,
         Loading
     },
-
     data: () => ({
         books: [],
         searchQuery: "",
         loading: false,
+        isPaginated: true,
         page: 1,
         perPage: 4,
     }),
@@ -79,44 +74,52 @@ export default {
     },
     methods: {
         async fetchBooks () {
-        this.loading = true
+            this.loading = true
             try {
-                const result = await axios.get(`https://www.anapioficeandfire.com/api/books?page=${this.page}&pageSize=${this.perPage}`)
+                const result = await axios.get(`https://www.anapioficeandfire.com/api/books`)
                 this.books = result.data
+                console.log(result.data);
                 this.loading = false
             } catch (error) {
                 alert(error.message)
                 this.loading = false
             }
-        },
+        }
     },
     computed: {
-        myCallback() {
-            let pageNumber = this.page - 1;
-            let paginatedBook = this.books.slice(
-                pageNumber * this.perPage,
-                (pageNumber + 1) * this.perPage
-            )
-            return paginatedBook;
+        all() {
+            return this.books.length;
         },
-
-
-        
         filteredBooks() {
             const query = this.searchQuery.toLowerCase();
             if (this.searchQuery === "") {
-                return this.books
+                let page_number = this.page -1;
+
+                let paginatedBook = this.books.slice(
+                    page_number * this.perPage,
+                    (page_number + 1) * this.perPage
+                )
+                return paginatedBook;
             }
 
-            return this.books.filter(book => {
+            let filter = this.books.filter(book => {
                 return Object.values(book).some(name => String(name).toLowerCase().includes(query))
             })
+            return filter
         },
-    }
+    },
+    watch: {
+        $route: {
+            immediate: true,
+            handler(newVal) {
+                if (newVal.hash) {
+                this.current = parseInt(newVal.hash.replace(/\page/g, ""));
+                }
+            },
+        },
+    },
 }
 </script>
-
-
 
 <style>
 .home {
@@ -142,6 +145,7 @@ table {
     font-family: Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    text-align: left;
 }
 th {
     width: 250px;
@@ -149,20 +153,21 @@ th {
     overflow: hidden;
     text-overflow: ellipsis !important;
 }
-td, th {
+tr td, tr th {
     border: 1px solid #dddddd !important;
     text-align: left;
     padding: 10px;
 }
-
 tr:nth-child(even) {
     background-color: #dddddd;
 }
-
 @media screen and (max-width:767px) {
     .home {
         width: 100%;
         margin: 0 auto;
     }
+}
+.pagination-next,  .pagination-previous {
+    display: none !important;
 }
 </style>
